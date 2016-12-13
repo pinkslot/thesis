@@ -1,0 +1,1267 @@
+\documentclass[12pt,reqno]{report}
+\usepackage[russian]{babel}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{amsbib}
+\usepackage{graphicx,color}
+\definecolor{red}{rgb}{0.8, .0, .0}
+\definecolor{blue}{rgb}{.0, 0.0, 0.9}
+\def\blue{\color{blue}}
+\def\red{\color{red}}
+\textheight 24cm \textwidth 16.5cm \topmargin -2cm \oddsidemargin
+0.5cm
+
+\def\sgn{\mathrm{sgn}}
+
+\newtheorem{lemma}{Лемма}
+\newtheorem{theorem}{Теорема}
+\newtheorem{definition}{Определение}
+\newtheorem{corollary}{Следствие}
+\newtheorem{proposition}{Предложение}
+\newtheorem{problem}{Задача}
+\newtheorem{remark}{Замечание}
+\renewcommand{\abstractname}{*}
+
+
+
+
+\renewcommand{\thesection}{\arabic{section}.}
+\renewcommand{\thedefinition}{\arabic{definition}.}
+\renewcommand{\thelemma}{\arabic{lemma}.}
+\renewcommand{\thetheorem}{\arabic{theorem}.}
+\renewcommand{\thecorollary}{\arabic{corollary}.}
+\renewcommand{\theremark}{\arabic{remark}.}
+\renewcommand{\theequation}{\arabic{equation}}
+
+
+
+
+
+
+
+
+\begin{document}
+{\bf УДК} 517.958 \vskip0.2cm
+
+
+\begin{center}
+{\bf \large  Теоретический и численный анализ  начально-краевой
+задачи для уравнения переноса излучения }\footnote[1]{Работа
+выполнена при финансовой поддержке Российского научного фонда
+(проект \No 14-11-00079).}
+\end{center}
+\begin{center}
+{\bf И.В. Прохоров$^{a,b}$, А. Ким$^{b}$ }
+\end{center}
+\begin{center}
+{\it ${}^a$690041  Владивосток, ул. Радио, 7, Институт прикладной
+математики ДВО РАН; ${}^b$690950 Владивосток, ул. Суханова, 8,
+Дальневосточный федеральный университет}\\
+e-mail: prokhorov@iam.dvo.ru,
+\end{center}
+\begin{quote}
+{\bf Аннотация.} Рассматривается задача Коши для нестационарного
+уравнения переноса излучения в трехмерной многокомпонентной среде
+с обобщенными условиями сопряжения, описывающими  френелевское
+отражение и преломление на границе раздела сред. Доказана
+однозначная разрешимость задачи, разработан метод Монте-Карло для
+решения начально-краевой задачи и проведены вычислительные
+эксперименты
+для различных реализаций алгоритма.\\
+{\bf Ключевые слова:} интегро-дифференциальные уравнения,
+нестационарные уравнения, задача Коши, френелевские  условия
+сопряжения, методы Монте-Карло
+\end{quote}
+
+\section{Введение}
+
+\setcounter{equation}{0}
+\setcounter{definition}{0}\setcounter{lemma}{0}\setcounter{theorem}{0}
+\setcounter{corollary}{0}\setcounter{remark}{0}
+
+
+Вопросы существования, единственности  и гладкости решений краевых
+задач для стационарных и нестационарных  линейных уравнений
+переноса излучения с традиционными условиями сопряжения на
+границах раздела сред типа непрерывной склейки в основном были
+решены во второй половине прошлого века \cite{1,2,3,4,5,6}.
+Исключения составляют, пожалуй, лишь некоторые задачи со
+специальным интегралом столкновений, описывающим комптоновское
+рассеяние. Результаты этих исследований были опубликованы
+сравнительно недавно \cite{7,8}
+
+Теория краевых задач для уравнения переноса излучения с
+обобщенными условиями сопряжения на границах раздела сред  еще не
+завершена и в настоящее время достаточно интенсивно развивается
+\cite{9,10,11,12,13,14,15,16}. Обобщенные условия сопряжения
+позволяют описывать различные физические эффекты  на границах
+раздела, не учтенные в самом уравнении. В частности, френелевские
+условия сопряжения моделируют зеркальное отражение и преломление
+по закона Снеллиуса  потока излучения на поверхности раздела двух
+сред.
+
+В настоящей работе продолжены исследования  \cite{12,13},
+посвященные изучению краевых задач для нестационарного уравнения
+переноса. В \cite{12,13} доказана разрешимость уравнения излучения
+в среде с плоско-параллельной симметрией и с оператором сопряжения
+достаточно общего вида. Причем, благодаря специфической геометрии
+области, основной результат получен без ограничения типа
+<<сжатия>> на оператор сопряжения.
+
+В общем  случае существует пример неединственности решения задачи
+для стационарного уравнения переноса излучения в чисто поглощающей
+трехмерной области с нестрого сжимающим оператором сопряжения
+\cite{10}, что в значительной мере обуславливает неединственность
+соответствующего решения  нестационарного уравнения. Однако, для
+широко известных операторов сопряжения, к коим, несомненно, можно
+отнести френелевский оператор, единственность стационарного
+решения имеет место при традиционных ограничениях на коэффициенты
+уравнения. Учитывая последнее обстоятельство, в данной работе
+показывается корректность задачи Коши для нестационарного
+уравнения переноса с френелевскими условиями сопряжения.
+Доказательство основного утверждения строится на сведении исходной
+начально-краевой задачи к  абстрактной задачи Коши для
+эволюционного уравнения и применении теоремы Хилле-Иосиды
+\cite{17}.
+
+Предметом исследования данной работы является
+интегродифференциальное   уравнение переноса \cite{2}
+\begin{equation}
+\left (\frac{1}{v(r)} \frac{\partial }{\partial t }  + \omega
+\cdot \nabla_r + \mu(r) \right) I(r,\omega,t)=\sigma(r)
+ \int\limits_{\Omega} p(r,\omega \cdot
+\omega')I(r,\omega',t)d\omega' + J(r,\omega,t),
+\end{equation}
+описывающее нестационарный процесс взаимодействия   излучения в
+веществом  в $\mathbb{R}^3$. Функция $I(r,\omega,t)$
+интерпретируется как плотность потока частиц  в момент времени
+$t\in [0,+\infty)$, в точке $r\in \mathbb{R}^3$, движущихся со
+скоростью $v$ в направлении единичного вектора $\omega \in
+\Omega=\{\omega \in \mathbb{R}^3: |\omega|=1\}$. Функции
+$\mu,\sigma$ и $p$ имеют смысл коэффициента ослабления,
+коэффициента  рассеяния и индикатрисы рассеяния.
+
+Процесс переноса излучения происходит в некоторой
+многокомпонентной системе $G$, состоящей из объединения конечного
+числа ограниченных и попарно непересекающихся подобластей
+$G_1,G_2,...,G_m$, причем замыкание $\overline{G}$ является
+выпуклым множеством в $\mathbb{R}^3$. Граница каждой области
+$G_i$, $\partial G_i=\overline{G}_i\setminus G_i$ принадлежит
+классу $C^1$. Поверхность $\partial \overline {G}$ будем называть
+внешней границей множества $G$, а $\gamma =\partial G \setminus
+\partial \overline{G}$ --- внутренней границей множества $G$.
+Для определенности, говоря о единичном векторе $n(z)$ нормали к
+поверхности  $\partial \overline{G}$ в точке $z$, будем иметь
+ввиду внешнюю нормаль. Если $z$ является точкой контакта двух
+смежных областей $G_i$ и $G_j$, $1 \leq i < j \leq m$, то  нормаль
+$n(z)$ выбирается внешней к поверхности с большим индексом, то
+есть к $\partial{G_j}$.
+
+
+
+
+Для краткости введем ряд обозначений:
+$$
+X=G\times \Omega \times [0,\infty), \quad X_0=\{(r,\omega,t)\in
+X:\; t=0 \},
+$$
+$$
+\Gamma^{\pm}_{ext} =
+\partial \overline{G} \times \Omega_{\pm}(z), \quad
+\Omega_{\pm}(z)= \{ \omega \in \Omega : \sgn (n(z) \cdot
+\omega)=\pm 1\}, \quad \Gamma_{int}=\gamma \times \Omega, \quad
+\Gamma^{\pm}=\Gamma^{\pm}_{ext}\cup \Gamma_{int},
+$$
+$$
+Y_{int}=\Gamma_{int}\times [0,\infty), \;
+Y^{\pm}_{ext}=\Gamma^{\pm}_{ext}\times [0,\infty), \;
+X^{-}_{ext}=X_0 \cup Y^{-}_{ext},
+ \; X^{-}=X^{-}_{ext}\cup Y_{int}, \; X^{+}=Y^{+}_{ext}\cup Y_{int}.
+$$
+
+
+
+В каждой из подобластей $G_i$ функции $v(r),\mu(r), \sigma(r),
+p(r,\omega \cdot \omega')$ не зависят от переменной $r$  и
+принимают значения $v(r)=v_i>0, \mu(r)=\mu_i > 0,
+\sigma(r)=\sigma_i, \sigma(r) \leq \mu(r)$, $p(r,\omega \cdot
+\omega')=p_i(\omega \cdot \omega') \geq 0$,  где функция
+$p_i(\omega \cdot \omega')$ интегрируема на отрезке $[-1,1]$ и
+удовлетворяет условию нормировки
+$$
+\int \limits_{\Omega} p_i(\omega \cdot \omega') d\omega'=1.
+$$
+Функция $J$ неотрицательная и принадлежит $L_{\infty}(X)$, где
+$L_{\infty}(X)$ пространство вещественных функций измеримых и
+почти всюду ограниченных  на множестве $X$ с нормой $\|f\|_X=
+\mathop{\fam0 ess\,sup} \limits_{x \in X} |f(x)|$.
+
+
+
+Присоединим к уравнению (1) начальные и граничные условия
+\begin{equation}
+I^- =h_0(r,\omega) \quad \text{на} \quad  X_0,
+\end{equation}
+\begin{equation}
+I^-= h_{ext}(z,\omega,t) \quad \text{на} \quad Y^-_{ext},
+\end{equation}
+и френелевские условия сопряжения на границе раздела сред [ ]
+\begin{equation}
+I^-(z,\omega,t)= R(z,\nu) I^+(z,\omega_{re},t) + T(z,\nu)
+I^+(z,\omega_{tr},t) \quad \text{на} \quad Y_{int},  \quad
+\nu=\omega \cdot n(z).
+\end{equation}
+В  соотношениях (2),(3) функция $h_0(z,\omega)\geq 0$
+характеризует состояние процесса в начальный момент времени $t=0$,
+a функция $h_{ext}(z,\omega,t) \geq 0$ имеет смысл плотности
+потока излучения входящего в среду $G$. Функции $I^{\pm}$ являются
+предельными  значениями функции $I$, $I^{\pm}(z,\omega,t)= \lim
+\limits_{\epsilon \to -0} I(z \pm \epsilon \omega, \omega,t \pm
+\epsilon)$.  Единичные вектора $\omega_{re},\omega_{tr}$,
+коэффициенты отражения и прохождения $R,T$ определяются
+соотношениями
+\begin{equation}
+\omega_{re} =\omega -2 \nu n, \quad \omega_{tr} =\psi (z,\nu) n +
+\widetilde{\kappa}(z,\nu)( \omega - \nu n),   \quad \nu=\omega
+\cdot n(z),
+\end{equation}
+\begin{equation}
+ \widetilde{\kappa}(z,\nu) =
+  \begin{cases}
+ {\kappa_i}/{\kappa_j}, & \text{если} \,    \quad z \in \partial G_i \cap \partial G_j,\;   0<     \nu(z) \leq 1, \\
+ {\kappa_j}/{\kappa_i}, & \text{если} \,    \quad z \in \partial G_i \cap \partial G_j,\;   -1 \leq \nu(z)  <
+ 0,
+  \end{cases}
+\end{equation}
+\begin{equation}
+\psi(z,\nu)=
+ \begin{cases}
+ {\sgn}(\nu) \sqrt{1- \widetilde{\kappa}^2(z,\nu) (1-\nu^2)}, & \text{если}
+ \quad      1- \widetilde{\kappa}^2(z,\nu) (1-\nu^2) \geq 0, \\
+ 0, \quad    &  \text{иначе},
+  \end{cases}
+\end{equation}
+\begin{equation}
+R (z,\nu)=\frac{1}{2} (R^2_{\|}(z,\nu)+R^2_{\bot}(z,\nu)), \quad
+T(z,\nu)=    1-R(z,\nu),
+\end{equation}
+где константы $\kappa_i$ обозначают показатели преломления сред
+$G_i$ и
+\begin{equation}
+R_{\|}(z,\nu)=\frac{\widetilde{\kappa}(z,\nu)
+\psi(z,\nu)-\nu}{\widetilde{\kappa}(z,\nu) \psi(z,\nu)+\nu},\quad
+R_{\bot}(z,\nu)=\frac{\psi(\nu)-\widetilde{\kappa}(z,\nu)\nu}
+{\psi(z,\nu)+\widetilde{\kappa}(z,\nu)\nu},
+\end{equation}
+В дальнейшем, если это не вызывает недоразумений,  мы будем
+опускать зависимость от переменной $z$ у функций
+$R,T,\psi,\widetilde{\kappa}$.
+
+
+
+\section{Постановка задачи}
+
+Относительно  множества $G$ дополнительно будем предполагать
+выполнения условия обобщенной выпуклости \cite{6,9,13}: любая
+прямая, имеющая общую точку с $G$, пересекает $\partial G$ в
+конечном числе точек.
+
+Пусть  $\Pi_{\omega}$ ортогональная проекция множества $G$ на
+плоскость, перпендикулярная направлению $\omega$ и проходящая
+через фиксированную точку в $\mathbb{R}^3$, а множество
+$\Pi_{\xi,\omega}$, где $\xi \in \Pi_{\omega}, \omega \in \Omega$
+есть пересечение прямой $\{ \xi + \tau \omega, \; - \infty < \tau
+< +\infty \}$ и множества $G$. Тогда, по  условию обобщенной
+выпуклости, одномерное открытое множество $\Pi_{\xi,\omega}$
+является объединением конечного числа интервалов
+\begin{equation}
+\begin{array}{c}
+\Pi^i_{\xi,\omega}=\{\xi + \tau \omega, \; d_i (\xi,\omega) < \tau
+<
+d_{i+1} (\xi,\omega) \}, \quad i=1,...,q(\xi,\omega),  \\
+- \infty < d_1(\xi,\omega) < d_2 (\xi,\omega) < ... <d_{q+1}
+(\xi,\omega) < + \infty, \\
+q(\xi,\omega) \leq \overline{q}= \sup \limits_{(\xi,\omega)\in
+\Pi_{\omega} \times \Omega} q(\xi,\omega) < \infty,\quad
+\Pi_{\xi,\omega}= \bigcup \limits^{q(\xi,\omega)}_{i=1}
+\Pi^i_{\xi,\omega}.
+\end{array}
+\end{equation}
+Отметим, что
+$$
+\Gamma^{-}_{ext}= \{\xi + d_1(\xi,\omega) \omega, \; \xi \in
+\Pi_{\omega} \} \times \Omega, \quad \Gamma^{+}_{ext}= \{\xi +
+d_{q+1}(\xi,\omega) \omega, \; \xi \in \Pi_{\omega} \} \times
+\Omega,
+$$
+$$
+\begin{array}{rl}
+\Gamma^{-}&= \{\xi + d_i(\xi,\omega) \omega, \; \xi \in
+\Pi_{\omega},\; i=\overline{1,q(\xi,\omega)} \} \times \Omega,
+\\
+\Gamma^{+}&= \{\xi + d_{i+1}(\xi,\omega) \omega, \; \xi \in
+\Pi_{\omega}, \;i=\overline{1,q(\xi,\omega)} \} \times \Omega.
+\end{array}
+$$
+Введем в рассмотрение функцию $h \in L_{\infty}(X^{-}_{ext}),\,
+X^{-}_{ext} = X_0 \cup Y^{-}_{ext}$ и френелевский оператор
+сопряжения ${\cal B}: L_{\infty}(Y_{int}) \to L_{\infty}(Y_{int})$
+по формулам:
+$$
+h(z,\omega,t)=\left\{%
+\begin{array}{ll}
+    h_0(z,\omega), & \hbox{если} \; (z,\omega,t) \in X_0,  \\
+    h_{ext}(z,\omega,t), & \hbox{если} \; (z,\omega,t) \in Y^-_{ext}, \\
+    \end{array}%
+\right.
+$$
+$$
+({\cal B} I^+) (z,\omega,t)=
+    R(z,\omega) I^+(z,\omega_{re},t) + T(z,\omega)
+I^+(z,\omega_{tr},t), \quad (z,\omega,t) \in Y_{int}.
+$$
+Для удобства доопределим нулем функцию $h$ на множестве $Y_{int}$
+и оператор сопряжения ${\cal B}$ на множестве $X^{-}_{ext}$, тогда
+$h$ и функции, принадлежащие области определения оператора  ${\cal
+B}$, заданы на объединении множеств $Y_{int}$ и $X^{-}_{ext}$.
+
+Везде далее под дифференциальным выражением в левой части
+уравнения (1) понимается производная в точке $(r,\omega,t)$ в
+направлении $\omega$:
+$$
+\left (\frac{1}{v(r)} \frac{\partial }{\partial t }  + \omega
+\cdot \nabla_r \right) f(r,\omega,t)= \left.
+\frac{\partial}{\partial \tau}
+f\left(r+\tau\omega,\omega,t+\tau/v(r)\right) \right |_{\tau=0}.
+$$
+
+{\it Будем говорить}, что функция $f(r,\omega,t)$ принадлежит
+$D(X)$, если после надлежащего изменения на множестве меры нуль в
+$X$:
+
+1) при почти всех   $(\xi,\omega,t) \in \Pi_{\omega} \times \Omega
+\times [0,\infty)$ функция $f(\xi+\tau\omega,\omega,t+\tau/v)$
+абсолютно непрерывна по $\tau,\,\tau \in
+(d_i(\xi,\omega),d_{i+1}(\xi,\omega)] \cap [-v t, +\infty) ,\,
+i=1,...,q(\xi,\omega)$;
+
+2) $f \in L_{\infty} (X)$, $\left (\dfrac{1}{v} \dfrac{\partial
+}{\partial t }  + \omega \cdot \nabla_r\right) f \in L_{\infty}
+(X)$;
+
+3) $f^{\pm}\in L_{\infty} (X^{\pm})$ и   $f^-={\cal B} f^+$ на
+$Y_{int}$.
+
+
+
+
+
+
+Пусть операторы ${\cal L}: D(X) \to L_{\infty}(X)$ и ${\cal S}:
+L_{\infty}(X) \to L_{\infty}(X)$ определены равенствами
+\begin{equation}
+{\cal L} f = \left (\frac{1}{v} \frac{\partial }{\partial t } +
+\omega \cdot \nabla_r \right) f + \mu f,
+\end{equation}
+\begin{equation}
+{\cal S}f= \sigma(r)
+ \int\limits_{\Omega} p(r,\omega \cdot
+\omega')f(r,\omega',t)d\omega',
+\end{equation}
+тогда {\it решением начально-краевой задачи (1)-(4)} будем
+называть функцию $I \in D(X)$, удовлетворяющую уравнению
+\begin{equation}
+{\cal L} I  = {\cal S}I + J \quad \text{почти всюду на} \quad X
+\end{equation}
+и условию
+\begin{equation}
+I^-= h  \quad \text{почти всюду на} \quad X^-_{ext}.
+\end{equation}
+
+
+
+
+
+
+\section{Исследование разрешимости начально-краевой задачи}
+
+
+
+\begin{lemma}
+Норма оператора сопряжения $\mathcal B: L_{\infty}(Y_{int}) \to
+L_{\infty}(Y_{int})$ не превышает единицу и при почти всех $z \in
+\gamma$ функция  $\mathcal B |\Phi|$ удовлетворяет соотношению
+\begin{equation}
+ \int \limits_{\Omega}
+ \mathcal B|\Phi| (z,\omega)   |n(z)\cdot\omega| d\omega = \int
+\limits_{\Omega}\left ( R(-n(z)\cdot\omega) +
+\frac{T(-n(z)\cdot\omega)}{\widetilde{\kappa}^2(n(z)\cdot\omega)}\right)
+|\Phi (z,\omega)| |n(z)\cdot\omega| d\omega .
+\end{equation}
+\end{lemma}
+{\bf Доказательство.}  Так как функции
+$\omega_{re}(z,\nu),\omega_{tr}(z,\nu) R(z,\nu), T(z,\nu),
+\nu=n(z)\cdot \omega$ непрерывны и ограничены на множестве $\gamma
+\times \Omega$  и $R+T=1$, то оператор сопряжения $\mathcal B:
+L_{\infty}(Y_{int}) \to L_{\infty}(Y_{int})$ ограничен и
+$\|\mathcal B \| \leq 1$.
+
+Причем, в силу теоремы Фубини для $\Phi \in L_{\infty}(Y_{int})$
+почти всюду на $\partial G$ существуют интеграл в левых части
+(15).
+
+Докажем  соотношение (15). Введем в интеграле правой части (15)
+новые переменные $\nu$ и $\varphi$ по формулам:
+$$
+  \begin{cases}
+  \nu = n(z) \cdot \omega, & -1 < \nu < 1, \\
+   \varphi= \arctg(\omega_2/\omega_1), & 0 \leq \varphi < 2 \pi,
+  \end{cases}
+\begin{cases}
+\omega_1=&\cos (\varphi) \sqrt{1-\nu^2}, \\
+\omega_2=&\sin (\varphi) \sqrt{1-\nu^2}, \\
+\omega_3=&\nu.
+\end{cases}
+$$
+Поскольку все вектора $\omega,\omega_{re},\omega_{tr}$ лежат в
+одной плоскости и
+$$
+\begin{array}{ll}
+\nu_{re}=n \cdot \omega_{re} = - n \cdot \omega =-\nu,\\
+\nu_{tr}=n\cdot\omega_{tr}=\psi(\nu),
+\end{array}
+$$
+то
+\begin{multline}
+\int \limits_{\Omega} \mathcal B |\Phi|
+(z,\omega)||n(z)\cdot\omega| d\omega = \\= \int \limits^{2\pi}_{0}
+\int \limits^{1}_{-1}  R(\nu) |\Phi(z,\omega(-\nu,\varphi))| |\nu|
+d  \nu  d \varphi+ \int \limits^{2\pi}_{0} \int \limits^{1}_{-1}
+ T(\nu) |\Phi(z,\omega(\psi(\nu),\varphi))| |\nu| d \nu  d
+ \varphi.
+\end{multline}
+Во   втором интеграле правой части соотношения (16) сделаем замену
+переменных   $\nu'=\psi(\nu)$. Найдем производную функции
+$\psi(\nu)$:
+\begin{equation}
+\psi'(\nu)=\dfrac{{\sgn}(\nu) \cdot \nu\cdot
+\widetilde{\kappa}^2(\nu)}{\sqrt{1-\widetilde{\kappa}^2(\nu)(1-\nu^2)}}
+= \dfrac{ \nu \cdot\widetilde{\kappa}^2(\nu)}{\psi(\nu)} = \dfrac{
+\nu \cdot\widetilde{\kappa}^2(\nu)}{\nu'}.
+\end{equation}
+Так как знаки функций $\nu'=\psi(\nu)$ и $\nu$ совпадают
+(${\sgn}(\nu')={\sgn}(\nu)$), то
+$\widetilde{\kappa}(\nu')=\widetilde{\kappa}(\nu)$, поэтому из
+(17) находим
+\begin{equation}
+|\nu|d\nu= \frac{|\nu| \cdot \nu'
+d\nu'}{\nu\cdot\widetilde{\kappa}^2(\nu)} = \frac{{\sgn}(\nu)
+\cdot \nu' d\nu'}{\widetilde{\kappa}^2(\nu)}= \frac{{\sgn}(\nu')
+\cdot \nu' d\nu'}{\widetilde{\kappa}^2(\nu')}= \frac{|\nu'|
+d\nu'}{\widetilde{\kappa}^2(\nu')} .
+\end{equation}
+В первом интеграле (16) сделаем замену $\nu'=-\nu$, и возвращаясь
+как в первом так и во втором интегралах к старому обозначению
+переменной $\nu$, получаем
+\begin{multline}
+\int \limits_{\Omega} \mathcal B |\Phi|
+(z,\omega)||n(z)\cdot\omega| d\omega = \\= \int \limits^{2\pi}_{0}
+\int \limits^{1}_{-1}  R(-\nu) |\Phi(z,\omega(\nu,\varphi))| |\nu|
+d  \nu  d
+ \varphi+
+\int \limits^{2\pi}_{0} \int \limits^{1}_{-1}
+ \frac{T(\psi^{-1}(\nu))}{\widetilde{\kappa}^2(\nu)} |\Phi(z,\omega(\nu,\varphi))| |\nu| d \nu  d
+ \varphi.
+\end{multline}
+Так как
+$$
+\kappa(\nu)=1/\kappa(-\nu), \quad \psi^{-1}(\nu)=-\psi(-\nu),
+\quad \text{при} \; 1-\kappa^2(\nu)(1-\nu^2) \geq 0,
+$$
+$$
+R_{\|}(-\nu)=\frac{\widetilde{\kappa}(-\nu)
+\psi(-\nu)+\nu}{\widetilde{\kappa}(-\nu) \psi(-\nu)-\nu}= \frac{
+-\psi^{-1}(\nu)/\widetilde{\kappa}(\nu)+\nu}{-\psi^{-1}(\nu)/\widetilde{\kappa}(\nu)
+-\nu}= -\frac{\nu \widetilde{\kappa}(\nu) - \psi^{-1}(\nu)}
+{\nu\widetilde{\kappa}(\nu) +    \psi^{-1}(\nu)}=
+-R_{\|}(\psi^{-1}(\nu)),
+$$
+$$
+R_{\bot}(-\nu)=\frac{\psi(-\nu)-\widetilde{\kappa}(-\nu)\nu}
+{\psi(-\nu)-\widetilde{\kappa}(-\nu)\nu}= \frac{-
+\psi^{-1}(\nu)+\nu/\widetilde{\kappa}(\nu)}{-
+\psi^{-1}(\nu)-\nu/\widetilde{\kappa}(\nu)}= -\frac{ \nu -
+\psi^{-1}(\nu)\widetilde{\kappa}(\nu)}{\nu+
+\psi^{-1}(\nu)\widetilde{\kappa}(\nu)} =-R_{\bot}(\psi^{-1}(\nu)),
+$$
+$$
+R(-\nu)=0.5\{R^2_{\|}(-\nu) +R^2_{\bot}(-\nu)\}=
+0.5\{R^2_{\|}(\psi^{-1}(\nu)) +R^2_{\bot}(\psi^{-1}(\nu))\}=
+R(\psi^{-1}(\nu)),
+$$
+$$
+T(\psi^{-1}(\nu))=1-R(\psi^{-1}(\nu))=1-R(-\nu)=T(-\nu),
+$$
+то из (19) находим
+\begin{multline}
+\int \limits_{\Omega} \mathcal B |\Phi|
+(z,\omega)||n(z)\cdot\omega| d\omega = \int \limits^{2\pi}_{0}
+\int \limits^{1}_{-1}  \left (R(-\nu) +
+\frac{T(-\nu)}{\widetilde{\kappa}^2(\nu)} \right)
+|\Phi(z,\omega(\nu,\varphi))| |\nu| d \nu  d  \varphi = \\ = \int
+\limits_{\Omega}\left ( R(-n(z)\cdot\omega) +
+\frac{T(-n(z)\cdot\omega)}{\widetilde{\kappa}^2(n(z)\cdot\omega)}\right)
+|\Phi (z,\omega)| |n(z)\cdot\omega| d\omega.
+\end{multline}
+$\blacksquare$
+
+\begin{lemma}
+Для любой функции  $\Phi \in L_{\infty}(X)$ начально-краевая
+задача
+\begin{equation}
+\mathcal L f =\Phi, \quad \text{ на} \quad X.
+\end{equation}
+\begin{equation}
+f^- =h \quad \text{ на} \quad X^-_{ext}.
+\end{equation}
+ имеет не более одного решения.
+\end{lemma}
+{\bf Доказательство.} Пусть функции $f_1$ и $f_2$ из $D$
+удовлетворяют (22),(23) и $\kappa(r)=\kappa_i,\,r \in G_i$ --
+показатель преломления среды $G$.  Тогда функция
+$f=(f_1-f_2)/\kappa^2$  удовлетворяет однородному уравнению
+${\mathcal L} f=0$ с граничными условиями вида:
+\begin{equation}
+f^-(z,\omega,t)=R (\nu) f^+(z,\omega_{re},t) +
+\widetilde{\kappa}^2(\nu) T(\nu,t) f^+(z,\omega_{tr},t), \;
+(z,\omega,t) \in Y_{int},
+\end{equation}
+\begin{equation}
+f^-(z,\omega,t)=0, \quad (z,\omega,t) \in X^-_{ext}.
+\end{equation}
+Так как $f \in D$, то ${\mathcal L f} = \Phi \in L_{\infty}(X)$ и,
+следовательно, по теореме Фубини почти всюду при $t\in[0,+\infty)$
+функция ${\mathcal L f}$ является   ограниченной и измеримой на
+множестве $G\times \Omega$. Не умаляя общности для удобства
+проведения доказательства леммы доопределим функцию $f$ при $t<0$
+нулем.
+
+Запишем решение уравнения ${\mathcal L}f=0$, справедливое при
+почти всех $(\xi,\tau,\omega,t) \in \Pi_{\omega} \times
+\Pi_{\xi,\omega} \times \Omega \times [0,\infty)$
+$$
+f(\xi+\tau\omega,\omega,t+\tau/v)=f^-(\xi+d_i (\xi,\omega)
+\omega,\omega, t+d_i (\xi,\omega)/v) \exp \left ( - \int
+\limits^{\tau}_{d_i(\xi,\omega)} \mu(\xi+\tau'\omega) d\tau'
+\right ).
+$$
+Откуда непосредственно вытекает, что функция
+$f(\xi+\tau\omega,\omega,t+\tau/v)$ при $\tau \in
+(d_i(\xi,\omega), d_{i+1}(\xi,\omega)]$ не меняет знака. Имея это
+ввиду, умножим уравнение ${\mathcal L}f=0$ на функцию $ {\sgn}
+(f(r,\omega,t))$ и проинтегрируем на множестве $G\times \Omega$
+\begin{multline}
+J=\int \limits_{\Omega} \int \limits_G  \left \{ {\sgn}
+(f(r,\omega,t))\left(\frac{1}{v} \frac{\partial
+f(r,\omega,t)}{\partial t} +\omega \cdot \nabla_r f(r,\omega,t) +
+\mu (r)  f(r,\omega,t)\right)\right \}
+ dr d\omega=
+\\
+=
+ \int \limits_{\Omega} \int \limits_{\Pi_{\omega}} \int
+\limits_{\Pi_{\xi,\omega}}    \frac{\partial
+|f(\xi+\tau\omega,\omega,t+\tau/v)|}{\partial \tau} d \tau d \xi d
+\omega + \int \limits_{\Omega} \int \limits_G \mu(r)
+|f(r,\omega,t)| dr
+d\omega = \\
+= \int \limits_{\Omega} \int \limits_{\Pi_{\omega}} \sum
+\limits^{q(\xi,\omega)}_{i=1} \int \limits_{\Pi^i_{\xi,\omega}}
+\frac{\partial |f(\xi+\tau\omega,\omega,t+\tau/v)|}{\partial \tau}
+d\tau d \xi d \omega +\int \limits_{\Omega} \int \limits_G \mu (r)
+|f(r,\omega,t)|
+dr d\omega= \\
+=
+ \int \limits_{\Omega} \int \limits_{\Pi_{\omega}}\{
+ |f|^+(\xi+d_{q+1}
+(\xi,\omega) \omega,\omega,t+d_{q+1}(\xi,\omega)/v) -
+|f|^-(\xi+d_{1} (\xi,\omega) \omega,\omega,t+d_{1}(\xi,\omega)/v)
++
+\\+
+\sum \limits^{q(\xi,\omega)}_{i=2}
+ (|f|^+ - |f|^-)(\xi+d_i (\xi,\omega)
+\omega,\omega, t+d_i (\xi,\omega)/v)\} d\xi d\omega + \int
+\limits_{\Omega} \int \limits_G  \mu(r) |f(r,\omega,t)| dr d\omega
+= 0.
+\end{multline}
+Учитывая граничные условия (25),(26), из соотношения (27) по
+теореме о замене переменных   в поверхностном интеграле ($ d\xi =
+|n(z) \cdot \omega| d s_z$) получаем:
+\begin{multline}
+J =
+ \int \limits_{\partial \overline{G}} \int \limits_{\Omega_-(z)}
+ |f(z,\omega,t)|^+ |\nu | d \omega d s_z
+ +
+\\+
+\int \limits_{\gamma} \int \limits_{\Omega} \left
+\{|f(z,\omega)|^+ - |R(\nu ) f^+(z,\omega_{re},t)   +
+\widetilde{\kappa}^2(\nu )T(\nu )
+f^+(z,\omega_{tr},t) ) | \right\} |\nu |d\omega d s_z +\\
+  + \int \limits_{\Omega} \int
+\limits_G  \mu(r) |f(r,\omega,t)| dr d\omega =J_1 +J_2 +J_3, \quad
+\nu = n(z)\cdot \omega,
+\end{multline}
+где через $J_i$, $i=1,2,3$ обозначены соответствующие слагаемые в
+соотношении (26). Так как $R, T \geq 0$, то
+\begin{multline}
+|f(z,\omega,t)|^+ - |R(\nu ) f^+(z,\omega_{re},t)   +
+\widetilde{\kappa}^2(\nu )T(\nu ) f^+(z,\omega_{tr},t)  | \geq \\
+\geq  | f  (z,\omega,t)|^+ -  R(\nu ) |f(z,\omega_{re},t)|^+   -
+\widetilde{\kappa}^2(\nu )T(\nu ) |f(z,\omega_{tr},t) |^+.
+\end{multline}
+Так как $R+T=1$, то из леммы 1 вытекает следующие неравенства
+\begin{multline}
+J_1 = \int \limits_{\partial \overline{G}} \int
+\limits_{\Omega_-(z)} \{
+ |f(z,\omega,t)|^+ - R (\nu ) |f(z,\omega_{re},t )|^+\} |\nu | d \omega d
+ s_z = \\ =
+ \int \limits_{\partial \overline{G}} \int
+\limits_{\Omega_-(z)} \{
+ |f(z,\omega,t)|^+ - R (-\nu ) |f(z,\omega,t)|^+\} |\nu | d \omega d
+ s_z  \geq 0,  \quad \nu = n(z)\cdot \omega,
+\end{multline}
+\begin{multline}
+J_2 \geq  \int \limits_{\gamma} \int \limits_{\Omega} \left \{| f
+(z,\omega,t)|^+ -  R(\nu ) |f(z,\omega_{re},t)|^+   -
+\widetilde{\kappa}^2(\nu )T(\nu ) |f(z,\omega_{tr},t) |^+ \right\}
+|\nu |d\omega d s_z = \\= \int \limits_{\gamma} \int
+\limits_{\Omega} \left \{|f (z,\omega,t)|^+ -  (R(-\nu )  + T(-\nu
+) |f(z,\omega,t) |^+ \right\} |\nu |d\omega d s_z =0, \quad \nu =
+n(z)\cdot \omega.
+\end{multline}
+Из (26),(27),(29) следует, что $J=J_1+J_2+J_3 \geq J_3$ при почти
+всех $t\in [0,\infty)$. Согласно (25) функция $J=0$, следовательно
+и $J_3=0$ при почти всех $t\in [0,\infty)$. Функция $\mu(r)  > 0$,
+поэтому и $f=0$ почти всюду на $G \times \Omega \times
+[0,\infty)$. Лемма доказана. $\blacksquare$
+
+
+
+Введем в рассмотрение  операторы $\mathcal P: L_{\infty}(X^-) \to
+D(X)$ и $\mathcal E: L_{\infty}(X) \to D(X)$, определяемые при
+$r\in G_i$ формулами:
+$$
+(\mathcal P
+\phi)(r,\omega,t)=\phi^-(r-d(r,-\omega,t)\omega,\omega,t-d(r,-\omega,t)/v_i)
+\exp \left(-  \mu_i  d(r,-\omega,t)\right),
+$$
+$$
+(\mathcal E\Phi)(r,\omega,t)=\int \limits^{d(r,-\omega,t)}_0 \exp
+\left(- \mu_i \tau\right) \Phi(r-\tau
+\omega,\omega,t-\tau/v_i)d\tau,
+$$
+$$
+d(r,-\omega,t)=\left\{%
+\begin{array}{ll}
+     d_1(r,-\omega), & \hbox{если}\quad {v_i t \geq d_1(r,-\omega);} \\
+     v_i t,        & \hbox{если}\quad {v_i t \leq d_1(r,-\omega).} \\
+\end{array}%
+\right.
+$$
+где $d_1(r,-\omega)$ расстояние от точки $r \in G_i \subset G$ до
+границы области $G_i$ в направлении вектора $-\omega$, то есть
+$d_1(r,-\omega) = \inf \limits_{\tau
+> 0} \{ r- \tau' \omega \in G_i \; \text{для любого} \; \tau' \in [0,\tau) \}$.
+
+Так как ${\mathcal L} {\mathcal P} \phi =0$, ${\mathcal P}
+\phi|_{X^-} =\phi^-$   и ${\mathcal L} {\mathcal E} \Phi = \Phi$,
+${\mathcal E} \Phi|_{X^-}=0$, то разрешимость начально-краевой
+задачи в $D$  эквивалентно  разрешимости уравнения
+\begin{equation}
+I= \mathcal P(h+ \mathcal B I^+ ) + \mathcal  E ( \mathcal S I +
+J).
+\end{equation}
+
+
+
+Докажем вспомогательную лемму.
+
+\begin{lemma}
+Решение уравнения
+\begin{equation}
+f= \mathcal P (h+\mathcal B f^+) + \mathcal  E \Phi
+\end{equation}
+существует, единственно  и справедлива следующая оценка
+\begin{equation}
+\|f\|_{X} \leq \max \left \{ \| h \|_{X^-_{ext}}, \left
+\|\frac{\Phi}{\mu} \right\|_{X} \right\},
+\end{equation}
+\end{lemma}
+{\bf Доказательство.} Единственность решения уравнения (31)
+вытекает из леммы 2,  покажем существование решения.
+
+Обозначим через $\Phi_{\pm},h_{\pm}$ функции следующего вида:
+$$
+\Phi_{+}(r,\omega,t)=\left\{%
+\begin{array}{ll}
+    \Phi(r,\omega,t), & \hbox{если}\; \Phi(r,\omega,t)\geq 0;\\
+    0, & \hbox{иначе;} \\
+\end{array}%
+\right.
+\Phi_{-}(r,\omega,t)=\left\{%
+\begin{array}{ll}
+    \Phi(r,\omega,t), & \hbox{если} \;\Phi(r,\omega,t)\leq 0; \\
+    0, & \hbox{иначе,} \\
+\end{array}%
+\right.
+$$
+$$
+h_{+}(z,\omega,t)=\left\{%
+\begin{array}{ll}
+    h(z,\omega,t), & \hbox{если}\; h(z,\omega,t)\geq 0;\\
+    0, & \hbox{иначе;} \\
+\end{array}%
+\right.
+h_{-}(z,\omega,t)=\left\{%
+\begin{array}{ll}
+    h(z,\omega,t), & \hbox{если} \;h(z,\omega,t)\leq 0; \\
+    0, & \hbox{иначе.} \\
+\end{array}%
+\right.
+$$
+Положим $f_{0,\pm}={\mathcal  E B} f^+_{\pm} +  {\mathcal  E}
+\Phi_{\pm}$ и построим итерационный процесс
+\begin{equation}
+f_{\pm,n}= \mathcal P \mathcal B f^+_{\pm,n-1} + f_{\pm,0} \quad
+n=1,2,....
+\end{equation}
+Так как операторы  $\mathcal P,\mathcal E, \mathcal B$
+неотрицательные, то $f_{+,0}, f_{+,1},..., f_{+,n},...$  ---
+монотонно возрастающая последовательность функций, а $f_{-,0},
+f_{-,1},..., f_{-,n},...$ --- монотонно убывающая. Покажем, что
+последовательность $\{f_{+,n} \}$ ограничена сверху, а
+последовательность $\{f_{-,n} \}$ --- снизу.
+
+Для функции $f_0$ оценка (32) вытекает из следующей цепочки
+неравенств, справедливой при почти всех $(r,\omega,t)\in X$,
+\begin{multline}
+f_{+,0} \leq  \max \limits_{1\leq i \leq m} \left \|
+h(r-d(r,-\omega,t)\omega,\omega,t-d(r,-\omega,t)/v_i) \exp \left(-
+\mu_i  d(r,-\omega,t)\right) + \right.
+\\
+\left. +
+ \int \limits_0^{d(r,-\omega,t)} \exp \left(- \mu_i \tau
+\right)
+\Phi_+(r-\tau\omega,\omega,t-\tau/v_i) d\tau \right \|_{G_i \times \Omega \times [0,\infty)}
+\leq  \\
+\leq \max \limits_{1\leq i \leq m} \left \|  \exp (- \mu_i
+d(r,-\omega,t) \|h\|_{X^-_{ext}} +  (1- \exp (- \mu_i
+d(r,-\omega,t)) \left\|\frac{\Phi_+}{\mu} \right\|_{X}
+\right\|_{G_i \times \Omega \times [0,\infty)} \leq \\ \leq \max
+\left\{\|h\|_{X^-_{ext}}, \left\|\frac{\Phi_+}{\mu} \right\|_{X}
+\right\}.
+\end{multline}
+Предполагая, что для функции $f_{+,n-1}$ неравенство (32)
+выполнено, убедимся, что оно справедливо и для функции $f_{+,n}$.
+Действительно, так как носители функций $h$ и ${\cal B} f^+_{+,n}$
+не пересекаются и $\|{\cal B}\| \leq 1$ , то  при почти всех
+$(r,\omega,t)\in X$ из (33) получаем
+\begin{multline}
+f_{+,n}(r,\omega,t) \leq  \max \limits _{1\leq i \leq m} \left\|
+\max \left\{\|h\|_{X^-_{ext}}, \|\mathcal B f^+_{+,n-1}\|_{X^-}
+\right\} \exp (- \mu_i d(r,-\omega,t) + \right.
+\\
+\left.
+ + \left\|\frac{\Phi_+}{\mu} \right\|_X
+\left(1-\exp (- \mu_i d(r,-\omega,t)) \right) \right\|_{G_i \times
+\Omega \times [0,\infty)} \leq \\ \leq
+ \max \limits _{1\leq i \leq m} \left\|
+\max \left\{\|h\|_{X^-_{ext}}, \max \left\{\|h\|_{X^-_{ext}},
+\left\|\frac{\Phi_+}{\mu} \right\|_X \right\} \right\} \exp (-
+\mu_i d(r,-\omega,t) + \right.
+\\
+\left.
+ + \left\|\frac{\Phi_+}{\mu} \right\|_X
+\left(1-\exp (- \mu_i d(r,-\omega,t)) \right) \right\|_{G_i \times
+\Omega \times [0,\infty)} \leq \max \left\{\|h\|_{X^-_{ext}},
+\left\|\frac{\Phi_+}{\mu} \right\|_X \right\}.
+\end{multline}
+Таким образом,  монотонная последовательность $f_{-,0},
+f_{-,1},..., f_{-,n},...$ ограничена сверху, следовательно она
+имеет предел $f_+=\lim \limits_{n \to \infty} f_{+,n}$ в
+пространстве $L_{\infty} (X)$. Аналогично показывается, что
+$$
+f_{-,n}(r,\omega,t) \geq -\max \left\{\|h\|_{X^-_{ext}},
+\left\|\frac{\Phi_+}{\mu} \right\|_X \right\}
+$$
+при почти всех $(r,\omega,t)\in X$.
+
+Поскольку для функции $f\in D$ соотношение (33) также справедливо
+для $f^+_{\pm,n}$, то повторяя рассуждения нетрудно убедиться в
+существовании предельных функций $f^+_{\pm} \in L_{\infty}(X^+)$.
+
+
+Переходя к пределу в равенстве  (33) приходим к выводу, что
+функции $f_{\pm}$ удовлетворяет уравнению (31), при
+$\Phi=\Phi_{\pm}$. Таким образом, доказано существование решения
+$f$ уравнения (31) и оценка (32).
+
+$\blacksquare$
+
+Из лемм 2,3, вытекает, что обратный к оператору ${\cal L}$
+существует и ограничен. Введем на линейном множестве $D$  норму
+\begin{equation}
+\|f\|_{D}= \max \left \{\|f^-\|_{X^-_{ext}},\left \|\frac{{\cal L}
+f}{\mu} \right\|_{X}\right\}.
+\end{equation}
+Так как $\mu \geq conts >0$, то  из неравенства (32) вытекает
+\begin{equation}
+\|f\|_X \leq \|f\|_{D}.
+\end{equation}
+Следовательно,  сходимость последовательности функций по норме $D$
+влечет за собой  сходимость  в  пространствах $L_{\infty}(X^+)$ и
+$L_{\infty}(X)$. Откуда  вытекает, что множество $D \subset
+L_{\infty}(X)$ с нормой (36) образует банахово пространство
+функций.
+
+
+
+
+\begin{lemma}
+Пусть  $\overline{\lambda} = \max \limits_{1\leq i\leq m}
+\lambda_i <1\,\, \lambda_i = \sigma_i/\mu_i$, тогда решение
+уравнения (30) в $D$ существует и единственно.
+\end{lemma}
+{\bf Доказательство.} Поскольку функция $p$ неотрицательна и
+удовлетворяет условию нормировки и справедливо неравенство (37),
+то для  $\|\mathcal S I/\mu \|$ получаем
+\begin{equation}
+\left\|\frac{\mathcal S I}{\mu} \right \|= \left\|\frac{
+\sigma(r)}{\mu(r)} \int \limits_{\Omega} p(r,\omega \cdot \omega')
+I(r,\omega',t)d\omega' \right \|\leq \overline{\lambda}\|I\| \leq
+\overline{\lambda} \|I\|_{D}.
+\end{equation}
+По построению  $\mathcal L (\mathcal P \mathcal B + \mathcal E
+\mathcal S) I =  \mathcal S I$, и $(\mathcal P \mathcal B +
+\mathcal E \mathcal S I)^- =0$ на $X^-_{ext}$, следовательно, из
+леммы 3 находим
+$$
+\|(\mathcal P \mathcal B + \mathcal E \mathcal S) I\|_{D} = \max
+\left\{ 0, \left \|   \frac{\mathcal S I}{\mu} \right \| \right\}
+\leq \overline{\lambda} \|I\|_{D}.
+$$
+Из (38) и последнего  неравенства вытекает, что
+$$
+\|(\mathcal P \mathcal B + \mathcal E \mathcal S)\| \leq
+\overline{\lambda} <1.
+$$
+Так как норма оператора $\mathcal P \mathcal B + \mathcal E
+\mathcal S$, действующего в банаховом пространстве $\mathcal{D}$,
+меньше единицы, то уравнение (30) при выполнении условия (38)
+однозначно разрешимо и решение может методом последовательных
+приближений:
+$$
+I_n =(\mathcal P \mathcal B + \mathcal E \mathcal S)I_{n-1} +I_0,
+\quad n=1,2,....
+$$
+Доказательство теоремы 1 завершено.
+
+
+$\blacksquare$
+
+
+\newpage
+
+
+
+\section{Построение алгоритмов метода Монте-Карло для решения начально-краевой задачи}
+
+
+
+Для решения операторного уравнения (31) справедливо представление
+в виде ряда Неймана:
+\begin{equation}\label{neumann_series}
+I = \sum_{n=0}^\infty\ (\mathcal{PB} + \mathcal{ES})^i (\mathcal P
+h + \mathcal E J).
+\end{equation}
+Рекуррентная запись этого представления (\ref{neumann_recur})
+является базой для построения численных алгоритмов вычисления
+искомой функции $I$.
+\begin{equation}\label{neumann_recur}
+\begin{array}{cc}
+I_n = (\mathcal{PB} + \mathcal{ES}) I_{n-1} + I_0, \qquad I_0 =
+\mathcal P h + \mathcal E J,
+\\
+\\
+I_N \approx I = \displaystyle{\lim_{n \to \infty}I_n}.
+\end{array}
+\end{equation}
+Представление искомой функции в таком виде имеет наглядное
+физическое представление. Каждый член последовательности $I_n$
+является аппроксимацией функции $I$. Применение оператора
+$\mathcal{PB} + \mathcal{ES}$ к   элементу последовательности
+$I_{n-1}$ определяет вклад излучения, испытавшего не более, чем
+$n$ актов взаимодействия со средой, а слагаемое $I_0$ учитывает
+вклад излучения, пришедшего от источников, ни разу не
+провзаимодействовав со средой.
+
+
+
+Для вычисления функции $I$ по формуле \label{neumann_recur}  будем
+использовать некоторые модификации метода Монте-Карло,
+различающиеся друг от друга построением траекторий.
+
+Введем обозначения для величин $t_i$ и $z_i$:
+$$
+t_i=t_i(r,-\omega,t)=r-d(r,-\omega,t)/v_i, \quad z_i=
+z_i(r,\omega,t) = r - d(r,-\omega, t)\omega = r -(t - t_i) v_i
+\omega.
+$$
+Через $t_i$ обозначено время, затрачиваемое частицей на путь от
+точки $r\in G_i$ до точки границы области $G_i$ ($z_i \in \partial
+G_i$) в направлении вектора $\omega$, при условии, что $t_i<t$. В
+противном случае $t_i=t$ и $z_i=r-v_i t$.
+
+
+1. {\it Алгоритм с ветвлением.} При построении $m-$ой траектории
+(дерева траекторий) для нахождения значения $I_{N,m}$ в точке
+$(r,\omega,t) \in G_i \times \Omega \times [0,\infty)$ вычисляется
+функция $I_{N-1,m}$ в трех других точках $(z_i, \omega_{re}, t_i),
+(z_i, \omega_{tr}, t_i)$ и $(r - \tau_m\omega, \omega_m, t - \tau
+/v_i)$ и полагается:
+\begin{multline}
+I_{N,m}(r,\omega,t) = \exp(-\mu_i d(r,-\omega,t)) (h(z_i, \omega,
+t_i) + \mathcal{B}I_{N-1,m}^+ (z_i, \omega, t_i) + \\ + \frac{1 -
+\exp(-\mu_i d(r,-\omega,t))}{\mu_i} (J(r - \tau_m\omega, \omega, t
+- \tau /v_i) + \sigma_i I_{N-1,m}(r - \tau_m \omega, \omega_m, t -
+\tau_m /v_i)),
+\end{multline}
+\begin{equation}
+  \overline{I}_{N,M} = \frac{1}{M}\sum_{m = 0}^M I_{N,m}.
+\end{equation}
+В (41) значения  $\tau_m$  есть реализации случайной величины
+$\tau$ распределенной с плотностью вероятности
+$$
+\displaystyle{\frac{\exp(-\mu_i \tau)}{(1-\exp(-\mu_i d(r,
+-\omega, t)))}},
+$$
+а $\omega_m$ реализации случайно величины $\omega'$ распределенной
+с плотностью вероятности  $p_i(\omega \cdot \omega')$. При данном
+подходе вклад отраженного и преломленного излучения на каждом шаге
+вычисляется точно, за исключением отбрасывания вклада излучения,
+которое провзаимодействовало со средой более чем $N$ раз.
+
+
+2. {\it Алгоритм без ветвления.} При построении $m-$ой траектории
+и нахождении значения $I_{N,m}$ в точке $(r,\omega,t) \in G_i
+\times \Omega \times [0,\infty)$ вычисляется только одно значение
+соответствующее  отраженному, либо преломленному или рассеянному
+излучению  с вероятностями
+$$
+p_{tr} = \exp(-\mu_i d(r,-\omega,t)) T(z_i, n(z_i) \cdot \omega),
+$$
+$$
+p_{re} = \exp(-\mu_i d(r,-\omega,t)) R(z_i, n(z_i) \cdot \omega),
+$$
+$$
+p_{sc} = 1 - \exp(-\mu_i d(r,-\omega,t)),
+$$
+соответственно. Величина $\overline{I}_{N,M}$ определяется как и
+ранее формулой (42), где $I_{N,m}$  принимает значения
+\begin{equation}
+I_{N,m}(r,\omega,t) = \left\{
+\begin{array}{c}
+   h(z_i,\omega,t), \omega, t_i) + I^+_{N-1,m} (z_i, \omega_{tr}, t_i),  \\
+
+   h(z_i,\omega,t), \omega, t_i) + I^+_{N-1,m} (z_i, \omega_{re}, t_i),   \\
+   \displaystyle{\frac{1}{\mu_i} J(r - \tau_j\omega, \omega, t - \tau_j /v_i)
+   + \frac{\sigma_i}{\mu_i}I_{N-1,m}(r - \tau_j\omega, \omega_j, t - \tau_j /
+   v_i))},
+\end{array}
+\right.
+\end{equation}
+с вероятностями $p_{tr},p_{re},p_{sc}$, соответственно.
+
+3. {\it Алгоритм с частичным ветвлением.} При реализации данного
+гибридный способа величина  $I_{N,m}(r,\omega,t)$  вычисляется
+следующим образом:
+\begin{equation}
+I_{N,m}(r,\omega,t) = \left\{
+\begin{array}{l}
+   h(z_i, \omega, t_i) +
+\mathcal{B}I_{N-1,m}^+ (z_i, \omega, t_i)), \;\text{с вероятностью}\; p_{re} + p_{tr} \\  \\
+   \dfrac{1}{\mu_i} J(r - \tau_j\omega, \omega, t - \tau_j/v_i) + \quad\\
+   \quad + \dfrac{\sigma_i}{\mu_i} I_{N-1}(r - \tau_j\omega, \omega_j, t - \tau_j / v_i)), \;\text{с вероятностью}\; p_{sc}
+\end{array}
+\right.
+\end{equation}
+Отметим, что в этом алгоритме вклад  отраженного и преломленного
+вычисляется точно, за исключением ошибок допущенных при
+отбрасывании остаточного члена ряда Неймана.
+
+
+\section{Вычислительные эксперименты}
+
+
+Для определения границ эффективности каждого метода, проведем ряд
+вычислительных экспериментов, варьируя различные параметры среды.
+
+Хорошо известно, что  адекватной оценкой эффективности
+статистического алгоритма является его трудоемкость[ ], равная
+произведению среднего времени вычисления одной случайной величины
+на ее дисперсию $C(I_{N,m}) = D(I_{N,m}) t(I_{N,m})$.
+
+
+В каждом тесте граничные условия будут задаваться на сферической
+поверхности радиуса $r_0 = 1$ с центром в $c_0 = (0, 0, 0)$ по
+следующему правилу $h(z, \omega, t) = \exp(2 - |z - (0, 0, 1)| -
+|\omega - (0, 0, -1)|)$. Измерять плотность потока излучения будем
+в $(0, 0, 0.7)$ в направлении $(0, 0, 1)$. Внутрь среды будут
+помещены два вложенных друг в друга сферических включения с
+радиусами $r_1 = 0.2$ и $r_2 = 0.05$ и центрами в $c_1 = (0, 0.02,
+0)$ и $c_2 = (0, 0.01, 0)$.
+
+Коэффициенты рассеяния для основной среды и большого включения
+равны $\mu_0 = \mu_1 = 1.5$ во втором и третьем тесте, и $\mu_0 =
+\mu_1 = 0.5 $ --- в первом, в малом включении $\mu_3 = 7.5$. Кроме
+того во всей среде будет присутствовать 10\% поглощение, т.е.
+$\sigma_i = 0.9 \mu_i$. Коэффициенты преломления в первом и втором
+тесте равны $k_1 = 1, k_2 = 3, k_3 = 10$, а в третьем --- $k_2 =
+1.4$.
+
+
+
+\begin{table}
+
+\begin{tabular}{l||c|c|c}
+Метод & Среда а) & Среда б) & Среда в) \\
+\hline \hline С ветвлением & $ 0.093 \cdot 597.2 = 55.82 $ & $
+0.208 \cdot 579.0 = 120.6 $ & $ 0.227 \cdot 624.0 = 141.6 $
+\\
+С частичным & $ 1.574 \cdot 82.80 = 130.3 $ & $ 0.861 \cdot 60.10
+= 51.76 $ & $ 1.334 \cdot 60.80 = 81.14 $
+\\
+Без ветвления & $ 8.463 \cdot 25.10 = 212.4 $  & $ 2.380 \cdot
+25.27 =  60.18 $ & $ 2.510 \cdot   26.00 =  65.27 $
+\end{tabular}
+
+\caption{Результаты сравнительного тестирования ветвящегося,
+неветвящегося и гибридного методов.} \label{test_res}
+\end{table}
+
+Как видно из результатов тестирования, представленных в табл.
+\ref{test_res} применение ветвящегося метода наиболее эффективно
+для слабо рассеивающих сред. Выбор же между гибридным и
+неветвящимся методом следует делать в зависимости от разности
+долей отраженного и преломленного излучения на внутренних
+границах. Так, например, во втором тесте доля отраженного
+излучения при прохождении границы большего включения под прямым
+углом составляет всего 7\%, а в третьем тесте она уже равна 27\%.
+Таким образом, гибридный метод дает выигрыш при более равном
+разделении излучения на отраженное и преломленное.
+
+
+Проведем тестирование численного алгоритма на предмет получения
+визуализации среды. Сравнение полученных результатов с
+естественными представлениями о распространении излучения в
+рассеивающих средах поможет проверить корректность работы метода.
+Чтобы получить изображение некоторой среды $G$ в изометрической
+проекции, будем вычислять значения функции плотности потока
+излучения в узлах прямоугольной сетки на плоскости $\Pi \cap G \ne
+\emptyset$, в направлении $\omega \perp \Pi$. В работе (ссылка на
+предыдущую работу) была показана стабилизация решения
+нестационарного уравнения к стационарному, при фиксированных
+граничных условиях. Рассмотрим случай, в котором граничные условия
+также являются нестационарными, т.е. зависят от временной
+координаты $t$. Изображения, построенные для значений из некоторой
+возрастающей последовательности $t = t_0, t_1, \hdots, t_n$, будут
+описывать процесс последовательного распространения излучения в
+среде.
+
+Как и в предыдущем тесте, границей исследуемой среды будет
+единичная сфера. Входной поток задается выражением: $h(z, \omega,
+t) = 0.5 + \exp(4 - 3 |z - (0, 1, 0)|^2 - 3 |\omega - (0, -1,
+0)|^2 - 10 (t - 10) ^ 2)$. Таким образом источник излучения будет
+достигать максимума в точке $(0, 1, 0)$, в направлении $(0, -1,
+0)$, в момент времени $t = 10$ и экспоненциально убывать при
+удалении от этой фазовой точки. Экраном --- областью, в точках
+которой строится изображение, является квадрат с центром в (0.3,
+0.1, 0.7), развернутый к началу координат.
+
+Сама сцена разделяется на подобласти тремя плоскостями,
+параллельными координатным осям. Горизонтальная плоскость проходит
+через начало координат, среда ниже этой плоскости имеет следующие
+характеристики: $\mu_1 = 8, \sigma_1 = 7, k_1 = 1.1$. Две
+горизонтальные плоскости помещены на расстояние $0.2$ от начала
+координат, характеристики среды за плоскостью слева от экрана:
+$\mu_2 = 10, \sigma_2 = 9, k_2 = 10$ --- вдали от экрана: $\mu_3 =
+2, \sigma_3 = 1, k_3 = 2$. Оставшаяся часть заполнена веществом,
+слабо взаимодействующим с излучением и имеющим единичный
+коэффициент преломления $\mu_0 = \sigma_0 = 0.0001, k_0 = 1$.
+
+На горизонтальной плоскости находятся 3 шара. Шар в углу сильно
+рассеивающий, коэффициенты среды в нем в точности повторяют
+коэффициенты среды ниже горизонтальной плоскости. Справа от него
+находится зеркальный шар, среда в нем аналогична среде за левой
+плоскостью. В центре, ближе к экрану помещен прозрачный шар,
+коэффициенты среды внутри него равны: $\mu_4 = 1, \sigma_4 = 0.5,
+k_4 = 1.05$. На \ref{visual} показана визуализация среды для 6
+моментов времени начиная с $t = 10.8$, с фиксированным шагом
+$\Delta t = 0.3$.
+
+\begin{figure}
+ \begin{minipage}[h]{0.328\linewidth}
+   \center{\includegraphics[width=1\linewidth]{0000.png}} t = 10.8 \\
+ \end{minipage}
+ \hfill
+ \begin{minipage}[h]{0.328\linewidth}
+   \center{\includegraphics[width=1\linewidth]{0001.png}} t = 11.1 \\
+ \end{minipage}
+ \hfill
+ \begin{minipage}[h]{0.328\linewidth}
+   \center{\includegraphics[width=1\linewidth]{0002.png}} t = 11.4 \\
+ \end{minipage}
+
+\medskip
+
+ \begin{minipage}[h]{0.328\linewidth}
+   \center{\includegraphics[width=1\linewidth]{0003.png}} t = 11.7 \\
+ \end{minipage}
+ \hfill
+ \begin{minipage}[h]{0.328\linewidth}
+   \center{\includegraphics[width=1\linewidth]{0004.png}} t= 12.0 \\
+ \end{minipage}
+ \hfill
+ \begin{minipage}[h]{0.328\linewidth}
+   \center{\includegraphics[width=1\linewidth]{0005.png}} t = 12.3 \\
+ \end{minipage}
+ \caption{Визуализация среды}
+ \label{visual}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{thebibliography}{1}
+
+\RBibitem{1} \by В.С. Владимиров \paper Математические задачи
+односкоростной теории переноса частиц \jour Тр.МИАН СССР  \vol 61
+\yr 1961 \pages 3--158
+
+
+
+\RBibitem{2} \by К. Черчиньяни  \book Теория и приложения
+уравнения Больцмана \publaddr М. \publ Мир \yr 1978
+
+\RBibitem{3} \by  В.М. Новиков, С.Б. Шихов  \book Теория
+параметрического воздействия на перенос нейтронов \publaddr М.
+\publ Энергоиздат \yr  1982
+
+
+
+\bibitem{4} \by  J. Voigt \paper  Positivity in time dependent
+linear transport theory \jour Acta Applicandae Mathematicae \vol 2
+\yr 1984 \pages 311-331
+
+\RBibitem{5} \by  Т.А. Гермогенова \book Локальные свойства
+решений уравнения переноса \publaddr М. \publ  Наука  \yr 1986
+
+
+\RBibitem{6} \by  Н.Б. Маслова \paper Математические методы
+исследования уравнения Больцмана \jour Алгебра и анализ \yr 1991
+\vol  3 \issue 1 \pages 3--56
+
+\RBibitem{7} \by  Д.С. Аниконов, Д.С. Коновалова \paper
+Кинетическое уравнение переноса для случая комптоновского
+рассеяния \jour Сиб. матем. журнал \yr 2002 \vol 43 \issue 5
+\pages 987–1001
+
+
+
+\RBibitem{8} \by  Д.С. Аниконов, Д.С. Коновалова \paper  Краевая
+задача для уравнения переноса с чисто комптоновским рассеянием
+\jour Сиб. матем. журнал \vol   46 \issue 1  \yr 2005 \pages  3–16
+
+
+
+\RBibitem{9} \by  И.В. Прохоров  \paper Краевая задача теории
+переноса излучения в неоднородной среде с условиями отражения на
+границе \jour Дифференциальные уравнения \yr 2000 \vol 36 \issue 6
+\pages 848-851
+
+
+\RBibitem{10} \by  И.В. Прохоров \paper  О разрешимости краевой
+задачи для уравнения переноса излучения с обобщенными условиями
+сопряжения на границе раздела сред \jour Известия РАН. Серия
+математическая \yr 2003 \vol 67 \issue 6  \pages 169--192
+
+
+
+\RBibitem{11} \by И.В. Прохоров  \paper О структуре множества
+непрерывности решения краевой задачи для уравнения переноса
+излучения \jour Математические заметки \yr 2009 \vol 86 \issue 2
+\pages 256--272
+
+
+\RBibitem{12} \by A.E. Kovtanyuk, I.V. Prokhorov \paper A
+boundary-value problem for the polarized-radiation transfer
+equation with Fresnel interface conditions for a layered medium
+\jour Journal of Computational and Applied Mathematics \yr 2011
+\vol 235 \issue 8 \pages 2006--2014
+
+\RBibitem{13} \by  И.В. Прохоров  \paper О разрешимости
+начально-краевой задачи для интегро-дифференциального уравнения
+\jour Сибирский математический журнал \yr 2012 \vol  53 \issue 2
+\pages 377-387
+
+
+\RBibitem{14} \by  И.В. Прохоров \paper  Задача Коши для уравнения
+переноса излучения с обобщенными условиями сопряжения \jour Журнал
+вычислительной математики и математической физики \yr 2013 \vol 53
+\issue 5 \pages 75--766
+
+
+\bibitem{15} \by A.A. Amosov \paper Boundary value problem for the radiation transfer equation with
+reflection and refraction conditions \jour Journal of Mathematical
+Sciences  \vol 191 \issue 2 \yr 2013 \pages 101-149
+
+\bibitem{16} \by A.A. Amosov \paper Boundary Value Problem for the Radiation Transfer Equation with
+Diffuse Reflection and Refraction Conditions \jour Journal of
+Mathematical Sciences  \vol 193 \issue 2 \yr 2013 \pages 151-176
+
+
+
+\RBibitem{17} \by C. Мизохата \book Теория уравнений с частными
+производными \publ Мир \publaddr М. \yr 1977
+
+\RBibitem{KuzMor72} \by Ю.~А.~Кузнецов, С.~Ф.~Морозов \paper
+Корректность постановки смешанной задачи для нестационарного
+уравнения переноса \jour Дифференц. уравнения \yr 1972 \vol 8
+\issue 9 \pages 1639--1648
+
+
+\RBibitem{Mor69} \by С.~Ф.~Морозов \paper Нестационарное
+интегро-дифференциальное уравнение переноса \jour Изв. вузов.
+Матем. \yr 1969 \issue 1 \pages 26--31
+
+
+\RBibitem{M} \by Михайлов Г.А., Медведев И.Н. \book Оптимизация
+весовых алгоритмов статистического моделирования \publ Омега Принт
+\yr 2011
+
+
+\end{thebibliography}
+
+
+
+
+\end{document}
